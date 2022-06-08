@@ -1,10 +1,13 @@
 import './App.css';
-import {useState, useEffect, useRef} from "react"
+import { useState, useEffect, useRef } from "react"
 import { getCharacter, getPeople, searchCharacter } from './api/people';
+import { Box, Button, Card, CardContent, List, ListItem, ListItemText, Stack, Typography } from '@mui/material';
+import InputUnstyled from '@mui/base/InputUnstyled';
+
 
 function App() {
   const [people, setPeople] = useState([])
-  const [errorState, setErrorState] = useState({hasError: false})
+  const [errorState, setErrorState] = useState({ hasError: false })
   const [currentCharacter, setCurrentCharacter] = useState(1)
   const [details, setDetails] = useState({})
   const [page, setpage] = useState(1)
@@ -16,7 +19,7 @@ function App() {
 
   useEffect(() => {
     getPeople(page).then(setPeople)
-    .catch(handleError)
+      .catch(handleError)
   }, [page])
 
   useEffect(() => {
@@ -24,7 +27,7 @@ function App() {
   }, [currentCharacter])
 
   const handleError = (err) => {
-    setErrorState({hasError: true, message: err.message})
+    setErrorState({ hasError: true, message: err.message })
   }
 
   const showDetails = (character) => {
@@ -44,53 +47,102 @@ function App() {
     inputSearch.current.value = "";
     setDetails({})
     searchCharacter(textSearch)
-    .then((setPeople))
-    .catch(handleError)
+      .then((setPeople))
+      .catch(handleError)
   }
 
   const onChangePage = (next) => {
     //Search Array methods
-    if(!people.previous && page + next <= 0) return;
-    if(![people.next && page + next >= 9]) return;
+    if (!people.previous && page + next <= 0) return;
+    if (![people.next && page + next >= 9]) return;
     setpage(page + next);
   }
 
-  
-  return (
-    <>
-    <input ref = {inputSearch} 
-    //search for ONCHANGE
-    onChange = {onChangeTextSearch} 
-    onKeyDown = {onSearchSubmit} 
-    type = "text" 
-    placeholder='Search a Character'/>
-    <ul>
-      {errorState.hasError && <div>{errorState.message}</div>}
-      {people?.results?.map((character) =>  (
-       <li key = {character.name} onClick = {showDetails}>{character.name}</li>
-     ))}
-    </ul>
 
-    <section>
-      <button onClick = {() => onChangePage(-1)}>Prev</button>
-      {page}
-      <button onClick = {() => onChangePage(+1)}>Next</button>
-    </section>
-    
-    {details && (
-      //Search Conditionals
-      //Search Aside
-      <aside>
-        <h1>Name: {details.name}</h1>
-        <ul>
-          <li>Weigth: {details.mass}</li>
-          <li>Height: {details.height}</li>
-          <li>Birth: {details.birth_year}</li>
-        </ul>
-      </aside>
-    )}
-    
-    </>
+  return (
+    <Box sx={{
+      width: 700,
+      height: 600,
+      border: '5px black'
+    }}
+    >
+
+
+
+      <Card sx={{ maxWidth: 675 }}>
+        <Stack direction="row" spacing={2}>
+
+          <CardContent>
+
+            <List
+              sx={{
+                width: '100%',
+                maxWidth: 760,
+                bgcolor: 'background.paper',
+                position: 'relative',
+                overflow: 'auto',
+                maxHeight: 400,
+                '& ul': { padding: 0 },
+              }}
+              subheader={<li />}
+            >
+              {errorState.hasError && <div>{errorState.message}</div>}
+
+              {people?.results?.map((character) => (
+                <ListItem key={character.name}>
+                  <ListItemText primary={character.name} onClick={showDetails} />
+                </ListItem>
+              ))}
+            </List>
+          </CardContent>
+          <Stack direction="column">
+          <CardContent>
+            {details && (
+              //Search Conditionals
+              //Search Aside
+              <aside>
+                <Typography variant="h3">Personal Data</Typography>
+                <Typography variant="h4">Name: {details.name}</Typography>
+                <Typography variant="h4"> Weigth: {details.mass}</Typography>
+                <Typography variant="h4">Height: {details.height}</Typography>
+              </aside>
+            )}
+          </CardContent>
+          <Stack direction="row" spacing={4} justifyContent="center"
+            alignItems="center">
+            <Typography variant="h5">Search Bar</Typography>
+            <input id="searchBar" ref={inputSearch}
+              //search for ONCHANGE
+              onChange={onChangeTextSearch}
+              onKeyDown={onSearchSubmit}
+              type="text"
+              placeholder='Search a Character' />
+          </Stack>
+          </Stack>
+        </Stack>
+      </Card>
+
+
+      <Box sx={{
+        width: 600,
+        height: 100
+      }}>
+
+
+        <Stack direction="row"
+          justifyContent="center"
+          alignItems="center"
+          spacing={1}>
+          <Button variant="contained" onClick={() => onChangePage(-1)}>Prev</Button>
+          <Typography variant="h4" component="h2">{page}</Typography>
+          <Button variant="contained" onClick={() => onChangePage(+1)}>Next</Button>
+        </Stack>
+      </Box>
+
+
+
+
+    </Box>
   );
 }
 
